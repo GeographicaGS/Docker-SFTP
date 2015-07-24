@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if ( id ${USER} ); then
+    echo "INFO: User ${USER} already exists"
+else
+    echo "INFO: User ${USER} does not exists, we create it"
+    ENC_PASS=$(perl -e 'print crypt($ARGV[0], "password")' ${PASS})
+    useradd -d /data -m -p ${ENC_PASS} -u ${USER_UID} -s /usr/lib/openssh/sftp-server ${USER}
+    chown ${USER}:${USER} /data
+fi
+
+exec /usr/sbin/sshd -D

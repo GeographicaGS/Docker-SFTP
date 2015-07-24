@@ -1,33 +1,20 @@
-FROM debian:latest
+# Based on work from Knut Ahlers (knut@ahlers.me, https://github.com/luzifer-docker/sftp-share). All credits to him.
 
-MAINTAINER Juan Pedro Perez "jp.alcantara@geographica.gs"
+FROM ubuntu:14.04
+MAINTAINER Juan Pedro Pérez <jp.alcantara@geographica.gs>
 
-# Environment
-# ENV JAVA_HOME /usr/local/jdk1.7.0_75
-ENV PASSPHRASE testphrase
+ENV USER share
+ENV PASS changeme
+ENV USER_UID 1000
 
-RUN apt-get update && apt-get install -y openssh-server
+RUN apt-get update && \
+    apt-get install -y openssh-server mcrypt && \
+    mkdir /var/run/sshd && chmod 0755 /var/run/sshd
 
-# RUN ssh-keygen -f /root/.ssh/id_rsa -N ${PASSPHRASE}
+ADD start.sh /usr/local/bin/start.sh
+ADD sshd_config /etc/ssh/sshd_config
 
-# RUN ssh-add id_rsa
-
-# # Copy assets
-# WORKDIR ${JRE_HOME}
-# ADD packages/jai-1_1_3-lib-linux-amd64-jre.bin ./
-# ADD packages/jai_imageio-1_1-lib-linux-amd64-jre.bin ./
-# ADD packages/UnlimitedJCEPolicyJDK7.zip ./lib/security/
-# ADD packages/geoserver-2.6.2-war.zip ${CATALINA_HOME}/webapps/
-# ADD packages/compile.sh /usr/local/
-
-# # Do everything
-# WORKDIR /usr/local/
-# RUN chmod 777 compile.sh
-# RUN ./compile.sh
-
-# EXPOSE 8080
-# EXPOSE 3333
-# EXPOSE 62911
-
+VOLUME ["/data"]
 EXPOSE 22
 
+ENTRYPOINT ["/bin/bash", "/usr/local/bin/start.sh"]
